@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визитная карточка</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: auto;
+        }
+
+        /* Снег и смайлики */
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .snow {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.9;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(40, 40, 40, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(45deg, #404040, #606060);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cccccc;
+            font-size: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 20px;
+        }
+
+        .nickname {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .tagline {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .stats {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stats span {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .info-section {
+            background: rgba(50, 50, 50, 0.5);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(60, 60, 60, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-item:hover {
+            background: rgba(80, 80, 80, 0.7);
+            transform: translateX(5px);
+        }
+
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #666666, #888888);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .contact-text {
+            text-align: left;
+            flex: 1;
+        }
+
+        .contact-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+        }
+
+        .contact-value {
+            font-size: 15px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .contact-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-link:hover {
+            color: #ff6b6b;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .small-skills {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .skill-small {
+            background: rgba(70, 70, 70, 0.6);
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .skill-small:hover {
+            background: rgba(90, 90, 90, 0.8);
+            transform: scale(1.05);
+        }
+
+        .skill-large {
+            background: rgba(80, 80, 80, 0.7);
+            padding: 18px 20px;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .skill-large:hover {
+            background: rgba(100, 100, 100, 0.9);
+            transform: scale(1.02);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .guarantee {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 30px 20px;
+            }
+            
+            .nickname {
+                font-size: 28px;
+            }
+            
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 35px;
+            }
+            
+            .info-section {
+                padding: 20px;
+            }
+            
+            .small-skills {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Анимация падения снега и смайликов */
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) translateX(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) translateX(calc(var(--random-x) * 100px)) rotate(360deg);
+            }
+        }
+
+        @keyframes fall-emoji {
+            0% {
+                transform: translateY(-100px) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(calc(var(--random-x) * 150px)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="snow-container"></div>
+    
+    <div class="glass-card">
+        <div class="avatar">
+            <i class="fas fa-code"></i>
+        </div>
+        
+        <h1 class="nickname">@phosz</h1>
+        <div class="tagline">
+            <span class="highlight">Java, Python, HTML разработчик</span><br>
+            со стажем более 3 лет
+        </div>
+        
+        <div class="stats">
+            🚀 <span>50+ успешных проектов</span> | ⭐ <span>98% довольных клиентов</span>
+        </div>
+        
+        <div class="tagline">
+            Создаю современные и функциональные решения любой сложности. 
+            От небольших скриптов до сложных веб-приложений.
+        </div>
+
+        <div class="info-section">
+            <div class="section-title">
+                <i class="fas fa-user-circle"></i>
+                Контакты
+            </div>
+            
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fab fa-telegram"></i>
+                </div>
+                <div class="contact-text">
+                    <div class="contact-label">Личный Telegram</div>
+                    <div class="contact-value">
+                        <a href="https://t.me/phosz" class="contact-link" target="_blank">@phosz</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <div class="contact-text">
+                    <div class="contact-label">Telegram Канал</div>
+                    <div class="contact-value">
+                        <a href="https://t.me/mavorp" class="contact-link" target="_blank">@mavorp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="section-title">
+                <i class="fas fa-star"></i>
+                Ключевые навыки
+            </div>
+            <div class="skills-container">
+                <div class="small-skills">
+                    <div class="skill-small">Python</div>
+                    <div class="skill-small">JavaScript</div>
+                </div>
+                <div class="skill-large">HTML/CSS</div>
+            </div>
+        </div>
+        
+        <a href="https://t.me/Phoszbot" class="cta-button" target="_blank">
+            <i class="fas fa-paper-plane"></i>
+            Обсудить проект
+        </a>
+        
+        <div class="guarantee">
+            ✅ Бесплатная консультация<br>
+            ✅ Сроки от 1 дня<br>
+            ✅ Техническая поддержка после сдачи проекта
+        </div>
+    </div>
+
+    <script>
+        // Новогодние смайлики
+        const emojis = ['🎉', '❄️', '🎄', '🎁', '🎅', '⭐', '✨', '🔥', '🚀', '💻'];
+        
+        function createSnowAndEmojis() {
+            const container = document.getElementById('snow-container');
+            const totalElements = 120;
+            const emojiRatio = 0.4; // 40% смайликов, 60% снежинок
+            
+            for (let i = 0; i < totalElements; i++) {
+                const isEmoji = Math.random() < emojiRatio;
+                
+                if (isEmoji) {
+                    // Создаем смайлик
+                    const emoji = document.createElement('div');
+                    emoji.classList.add('emoji');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    
+                    const size = Math.random() * 20 + 16;
+                    emoji.style.fontSize = `${size}px`;
+                    
+                    emoji.style.left = `${Math.random() * 100}vw`;
+                    emoji.style.top = `${Math.random() * -100}px`;
+                    
+                    const duration = Math.random() * 8 + 6;
+                    const randomX = Math.random() * 3 - 1.5;
+                    emoji.style.setProperty('--random-x', randomX);
+                    emoji.style.animation = `fall-emoji ${duration}s linear infinite`;
+                    emoji.style.animationDelay = `${Math.random() * 5}s`;
+                    
+                    container.appendChild(emoji);
+                } else {
+                    // Создаем снежинку
+                    const snow = document.createElement('div');
+                    snow.classList.add('snow');
+                    
+                    const size = Math.random() * 4 + 2;
+                    snow.style.width = `${size}px`;
+                    snow.style.height = `${size}px`;
+                    
+                    snow.style.left = `${Math.random() * 100}vw`;
+                    snow.style.top = `${Math.random() * 100}vh`;
+                    
+                    snow.style.opacity = Math.random() * 0.7 + 0.3;
+                    
+                    const duration = Math.random() * 5 + 5;
+                    const randomX = Math.random() * 2 - 1;
+                    snow.style.setProperty('--random-x', randomX);
+                    snow.style.animation = `fall ${duration}s linear infinite`;
+                    
+                    container.appendChild(snow);
+                }
+            }
+        }
+
+        // Анимации элементов
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowAndEmojis();
+            
+            const items = document.querySelectorAll('.contact-item, .skill-small, .skill-large');
+            
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, 100 + index * 100);
+            });
+        });
+
+        // Пересоздание при изменении размера окна
+        window.addEventListener('resize', function() {
+            const container = document.getElementById('snow-container');
+            container.innerHTML = '';
+            createSnowAndEmojis();
+        });
+    </script>
+</body>
+</html>
